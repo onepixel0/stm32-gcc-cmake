@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
 project(stm32)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-set(TOOLCHAIN_PREFIX /opt/arm-none-eabi)
-set(STM32_CHIP "stm32f030f4")
-include(stm32_gcc.cmake)
+
+find_package(CMSIS REQUIRED)
+find_package(HAL COMPONENTS rcc gpio tim REQUIRED)
+
+include_directories(
+        ${CMSIS_INCLUDE_DIRS}
+        ${HAL_INCLUDE_DIRS})
 
 set(SOURCE_FILES main.c)
-add_executable(stm32 ${SOURCE_FILES})
+add_executable(stm32 ${SOURCE_FILES} ${CMSIS_SOURCES} ${HAL_SOURCES})

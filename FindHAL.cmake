@@ -9,10 +9,9 @@ if(STM32_FAMILY STREQUAL "F0")
     set(HAL_REQUIRED_COMPONENTS
             cortex pwr rcc)
     set(HAL_EX_COMPONENTS
-            adc crc dac dma flash
-            gpio i2c irda pcd pwr
-            rcc rtc smartcard spi
-            tim uart usart)
+            adc crc dac flash i2c
+            pcd pwr rcc rtc
+            smartcard spi tim uart)
     set(HAL_LL_COMPONENTS "")
     set(HAL_PREFIX stm32f0xx_)
     set(HAL_HEADERS
@@ -22,19 +21,19 @@ if(STM32_FAMILY STREQUAL "F0")
             ${HAL_PREFIX}hal.c)
 endif()
 
-if(NOT STM32HAL_FIND_COMPONENTS)
-        set(STM32HAL_FIND_COMPONENTS ${HAL_COMPONENTS})
+if(NOT HAL_FIND_COMPONENTS)
+        set(HAL_FIND_COMPONENTS ${HAL_COMPONENTS})
         message(STATUS "No STM32HAL components specified, using all")
 endif()
 
 foreach(COMP ${HAL_REQUIRED_COMPONENTS})
-    list(FIND STM32HAL_FIND_COMPONENTS ${COMP} STM32HAL_FOUND_INDEX)
+    list(FIND HAL_FIND_COMPONENTS ${COMP} STM32HAL_FOUND_INDEX)
     if(${STM32HAL_FOUND_INDEX} LESS 0)
-        list(APPEND STM32HAL_FIND_COMPONENTS ${COMP})
+        list(APPEND HAL_FIND_COMPONENTS ${COMP})
     endif()
 endforeach()
 
-foreach(COMP ${STM32HAL_FIND_COMPONENTS})
+foreach(COMP ${HAL_FIND_COMPONENTS})
     list(FIND HAL_COMPONENTS ${COMP} STM32HAL_FOUND_INDEX)
     if(${STM32HAL_FOUND_INDEX} LESS 0)
         message(FATAL_ERROR "Unknown STM32HAL component: ${COMP}. Available components: ${HAL_COMPONENTS}")
@@ -59,18 +58,18 @@ list(REMOVE_DUPLICATES HAL_SRCS)
 
 string(TOLOWER ${STM32_FAMILY} STM32_FAMILY_LOWER)
 
-find_path(STM32HAL_INCLUDE_DIRS ${HAL_HEADERS}
+find_path(HAL_INCLUDE_DIRS ${HAL_HEADERS}
         PATHS ${STM32CUBE_DIR}/Drivers/STM32${STM32_FAMILY}xx_HAL_Driver/Inc
-        NO_DEFAULT_PATH)
+        CMAKE_FIND_ROOT_PATH_BOTH)
 
 foreach(HAL_SRC ${HAL_SRCS})
     set(HAL_${HAL_SRC}_FILE HAL_SRC_FILE-NOTFOUND)
     find_file(HAL_${HAL_SRC}_FILE ${HAL_SRC}
             PATHS ${STM32CUBE_DIR}/Drivers/STM32${STM32_FAMILY}xx_HAL_Driver/Src
-            NO_DEFAULT_PATH)
-    list(APPEND STM32HAL_SOURCES ${HAL_${HAL_SRC}_FILE})
+            CMAKE_FIND_ROOT_PATH_BOTH)
+    list(APPEND HAL_SOURCES ${HAL_${HAL_SRC}_FILE})
 endforeach()
 
 include(FindPackageHandleStandardArgs)
 
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(STM32HAL DEFAULT_MSG STM32HAL_INCLUDE_DIRS STM32HAL_SOURCES)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(STM32HAL DEFAULT_MSG HAL_INCLUDE_DIRS HAL_SOURCES)
