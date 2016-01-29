@@ -1,3 +1,14 @@
+if(STM32_CHIP_TYPE OR STM32_CHIP)
+    if(NOT STM32_CHIP_TYPE)
+        STM32_GET_CHIP_TYPE(${STM32_CHIP} STM32_CHIP_TYPE)
+        if(NOT STM32_CHIP_TYPE)
+            message(FATAL_ERROR "Unknown chip: ${STM32_CHIP}. Try to use STM32_CHIP_TYPE directly.")
+        endif()
+        message(STATUS "${STM32_CHIP} is ${STM32_CHIP_TYPE} device")
+    endif()
+    string(TOLOWER ${STM32_CHIP_TYPE} STM32_CHIP_TYPE_LOWER)
+endif()
+
 set(CMSIS_CORE_HEADERS
         core_cmFunc.h
         core_cmInstr.h
@@ -36,22 +47,20 @@ set(CMSIS_INCLUDE_DIRS
     )
 
 foreach(SRC ${CMSIS_DEVICE_SOURCES})
-    set(STC_FILE SRC_FILE-NOTFOUND)
+    set(SRC_FILE SRC_FILE-NOTFOUND)
     find_file(SRC_FILE ${SRC}
         PATHS ${STM32CUBE_DIR}/Drivers/CMSIS/Device/ST/STM32${STM32_FAMILY}xx/Source/Templates
         CMAKE_FIND_ROOT_PATH_BOTH)
     list(APPEND CMSIS_SOURCES ${SRC_FILE})
 endforeach()
 
-#TODO: find correct startup file
-
-#if(STM32_CHIP_TYPE)
-#set(SRC_FILE SRC_FILE-NOTFOUND)
-#find_file(SRC_FILE ${CMSIS_STARTUP_SOURCE}
-#        PATHS ${STM32CUBE_DIR}/Drivers/CMSIS/Device/ST/STM32${STM32_FAMILY}xx/Source/Templates/gcc
-#        NO_DEFAULT_PATH)
-#    list(APPEND STM32CMSIS_SOURCES ${SRC_FILE})
-#endif()
+if(STM32_CHIP_TYPE)
+    set(SRC_FILE SRC_FILE-NOTFOUND)
+    find_file(SRC_FILE ${CMSIS_STARTUP_SOURCE}
+        PATHS ${STM32CUBE_DIR}/Drivers/CMSIS/Device/ST/STM32${STM32_FAMILY}xx/Source/Templates/gcc
+        CMAKE_FIND_ROOT_PATH_BOTH)
+    list(APPEND CMSIS_SOURCES ${SRC_FILE})
+endif()
 
 include(FindPackageHandleStandardArgs)
 

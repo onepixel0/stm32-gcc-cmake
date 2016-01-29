@@ -1,6 +1,6 @@
 if(STM32_FAMILY STREQUAL "F0")
     set(HAL_COMPONENTS
-            adc can cec comp conf
+            adc can cec comp
             cortex crc dac dma
             flash gpio i2c i2s irda
             iwdg pcd pwr rcc rtc
